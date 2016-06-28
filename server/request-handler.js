@@ -39,11 +39,70 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/JSON";
 
-  // .writeHead() writes to the request line and headers of the response,
+
+
+
+
+  //depending on what the request method is, then we need to form a response
+
+
+  //REQUEST METHODS:
+  //GET
+  //form the response packet ->
+  //body of the response is the fileData on the server
+  if(request.method === "GET"){
+     // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+    response.writeHead(statusCode, headers);
+    response.write(JSON.stringify(fileData));
+  }
+
+
+  //POST
+  // at this point, `body` has the entire request body stored in it as a string
+   //Update the fileData with whatever was sent in the request
+  //response.write(fileData);
+  else if(request.method === "POST"){
+    //putting the entire request body into the body variable
+    var body = [];
+    request.on('data',
+    function(chunk) {
+      console.log("Chunk is ");
+      body.push(chunk);
+    }).on('end', function() {
+      body = Buffer.concat(body).toString();
+      console.log("Post body is" + body);
+      //parseJSON and return body back into a JSON element
+      var parsedBody = JSON.parse(body);
+
+      //push the new data onto the results array in fileData
+      fileData.results.push(parsedBody);
+    });
+
+
+    response.writeHead(201,headers);
+
+  }
+
+  //PUT
+  //Should work the same as POST
+  //response.write(fileData);
+
+  //DELETE
+  //Delete specific parts of the fileData
+  //response.write(fileData);
+
+  //OPTIONS
+  //To be Determined
+
+  //FAIL request (status code is 403)
+
+
+
+
+  response.end();
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -52,7 +111,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -70,4 +129,7 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
+var fileData = {results:[{createdAt: "2016-06-27", username:"testUser", roomname:"testRoom", text:"testText"}]};
+
+module.exports = requestHandler;
 
