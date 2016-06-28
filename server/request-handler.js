@@ -55,8 +55,17 @@ var requestHandler = function(request, response) {
   if(request.method === "GET"){
      // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
+    var packet;
+
+    if(request.url !== "/classes/messages"){
+      statusCode = 404;
+      packet = "";
+    } else {
+      statusCode = 200;
+      packet = JSON.stringify(fileData)
+    }
     response.writeHead(statusCode, headers);
-    response.write(JSON.stringify(fileData));
+    response.write(packet);
   }
 
 
@@ -78,12 +87,9 @@ var requestHandler = function(request, response) {
       var parsedBody = JSON.parse(body);
 
       //push the new data onto the results array in fileData
-      fileData.results.push(parsedBody);
+      fileData.results.unshift(parsedBody);
     });
-
-
     response.writeHead(201,headers);
-
   }
 
   //PUT
