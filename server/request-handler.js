@@ -57,15 +57,17 @@ var requestHandler = function(request, response) {
   // which includes the status and all headers.
     var packet;
 
-    if(request.url !== "/classes/messages"){
-      statusCode = 404;
-      packet = "";
-    } else {
+    if((request.url === "/classes/messages") ||
+       (request.url === "/classes/room") ||
+       (request.url === "/classes/room1")){
       statusCode = 200;
       packet = JSON.stringify(fileData)
+    } else {
+      statusCode = 404;
+      packet = "";
     }
     response.writeHead(statusCode, headers);
-    response.write(packet);
+    response.end(packet);
   }
 
 
@@ -75,21 +77,29 @@ var requestHandler = function(request, response) {
   //response.write(fileData);
   else if(request.method === "POST"){
     //putting the entire request body into the body variable
+
+    //EX: /classes/<ROOM>
+    var room = request.url.substr(9);
+    console.log(request.url);
+
     var body = [];
     request.on('data',
     function(chunk) {
-      console.log("Chunk is ");
       body.push(chunk);
-    }).on('end', function() {
-      body = Buffer.concat(body).toString();
+      console.log("Chunked data is" + body);
+    });
+    request.on('end', function() {
       console.log("Post body is" + body);
       //parseJSON and return body back into a JSON element
       var parsedBody = JSON.parse(body);
+      parsedBody["roomname"] = room;
+      console.log("parse room  = " + parsedBody["roomname"] );
 
       //push the new data onto the results array in fileData
       fileData.results.unshift(parsedBody);
     });
     response.writeHead(201,headers);
+    response.end();
   }
 
   //PUT
@@ -108,7 +118,7 @@ var requestHandler = function(request, response) {
 
 
 
-  response.end();
+
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -137,5 +147,5 @@ var defaultCorsHeaders = {
 };
 var fileData = {results:[{createdAt: "2016-06-27", username:"testUser", roomname:"testRoom", text:"testText"}]};
 
-module.exports = requestHandler;
+exports.requestHandler = requestHandler;
 
