@@ -59,9 +59,11 @@ var requestHandler = function(request, response) {
 
     if((request.url === "/classes/messages") ||
        (request.url === "/classes/room") ||
-       (request.url === "/classes/room1")){
+       (request.url === "/classes/room1") ||
+       (request.url === "/")
+       ){
       statusCode = 200;
-      packet = JSON.stringify(fileData)
+      packet = JSON.stringify(fileData);
     } else {
       statusCode = 404;
       packet = "";
@@ -71,6 +73,13 @@ var requestHandler = function(request, response) {
   }
 
 
+  else if(request.method === "OPTIONS"){
+
+
+    response.writeHead(200,headers);
+    response.end('');
+  }
+
   //POST
   // at this point, `body` has the entire request body stored in it as a string
    //Update the fileData with whatever was sent in the request
@@ -78,8 +87,6 @@ var requestHandler = function(request, response) {
   else if(request.method === "POST"){
     //putting the entire request body into the body variable
 
-    //EX: /classes/<ROOM>
-    var room = request.url.substr(9);
     console.log(request.url);
 
     var body = [];
@@ -92,8 +99,6 @@ var requestHandler = function(request, response) {
       console.log("Post body is" + body);
       //parseJSON and return body back into a JSON element
       var parsedBody = JSON.parse(body);
-      parsedBody["roomname"] = room;
-      console.log("parse room  = " + parsedBody["roomname"] );
 
       //push the new data onto the results array in fileData
       fileData.results.unshift(parsedBody);
@@ -110,8 +115,6 @@ var requestHandler = function(request, response) {
   //Delete specific parts of the fileData
   //response.write(fileData);
 
-  //OPTIONS
-  //To be Determined
 
   //FAIL request (status code is 403)
 
@@ -139,12 +142,14 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
+
 var defaultCorsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
+
 var fileData = {results:[{createdAt: "2016-06-27", username:"testUser", roomname:"testRoom", text:"testText"}]};
 
 exports.requestHandler = requestHandler;
