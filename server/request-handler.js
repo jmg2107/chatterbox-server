@@ -42,9 +42,6 @@ var requestHandler = function(request, response) {
   headers['Content-Type'] = "application/JSON";
 
 
-
-
-
   //depending on what the request method is, then we need to form a response
 
 
@@ -143,6 +140,14 @@ var requestHandler = function(request, response) {
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
 
+exports.gatherData = function(){
+
+  return JSON.stringify(fileData);
+}
+
+exports.expandData = function(data){
+  fileData.results.unshift(data);
+}
 var defaultCorsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
